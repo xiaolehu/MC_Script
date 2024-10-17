@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.current_check = 0  # 当前检测次数
         self.failed_checks = []  # 存储未检测到目标的检测次数
         self.first_success = False  # 是否成功完成第一次检测
-
+        self.ui.stop.setEnabled(False)
         # 设置初始定时器间隔为默认值
         self.timer.setInterval(self.default_check_interval)
 
@@ -100,6 +100,7 @@ class MainWindow(QMainWindow):
         self.ui.start.setEnabled(False)  # 禁用 start 按钮
         self.timer.setInterval(self.default_check_interval)  # 恢复默认的间隔时间
         self.timer.start(self.default_check_interval)  # 开始检测
+        self.ui.stop.setEnabled(True)
     def check_target(self):
         """进行目标图片检测"""
         if not self.image_path:
@@ -170,13 +171,16 @@ class MainWindow(QMainWindow):
             # 检查是否有失败的检测点
             if self.failed_checks:
                 # 将失败的检测次数填写到选中的 LineEdit 上
-                failed_times = ",".join(map(str, self.failed_checks))
+                formatted_failed_checks = [f'{check:02d}' for check in self.failed_checks]
+                failed_times = ",".join(formatted_failed_checks)
                 selected_line_edit.setText(failed_times)
             else:
                 # 没有失败点，填写 '-'
                 selected_line_edit.setText("-")
 
             QMessageBox.information(self, "Check Completed", "All test point checks have been completed.")
+            self.ui.stop.setEnabled(False)
+
 
     def copy_to_clipboard(self):
         selected_card = self.ui.comboBox.currentText().replace(" ", "")
@@ -198,6 +202,7 @@ class MainWindow(QMainWindow):
         self.current_check = 0
         self.failed_checks.clear()
         self.first_success = False
+
 
 if __name__ == "__main__":
     # 创建应用程序实例
